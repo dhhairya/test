@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environment
+venv/
+env/
+.env
+.venv/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Flask
+instance/
+cropguard.db
+*.sqlite
+*.sqlite3
+
+# Model weights (large files — store separately or in LFS)
+models/*.pth
+models/*.pt
+models/*.onnx
+models/*.tflite
+!models/.gitkeep
+
+# Uploaded images (user data — don't commit)
+uploads/
+!uploads/.gitkeep
+
+# Dataset (too large for git — download separately)
+data/plantvillage/
+data/*.zip
+!data/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+logs/

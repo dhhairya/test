@@ -1,0 +1,43 @@
+# ============================================================
+# CropGuard AI — Python Dependencies
+# ============================================================
+# Install all at once:
+#   pip install -r requirements.txt
+#
+# PyTorch (CPU-only, smaller download — recommended for dev):
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+#
+# PyTorch (GPU / CUDA 12.1):
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+# ============================================================
+
+# --- Web Framework ---
+Flask>=3.1.0
+Flask-SQLAlchemy>=3.1.1
+Flask-CORS>=6.0.0
+Werkzeug>=3.1.0
+gunicorn>=22.0.0
+
+# --- Database ---
+SQLAlchemy>=2.0.16
+
+# --- ML / CV ---
+# PyTorch: install separately (see header above) — not pinned here
+# to avoid conflicts across CPU/GPU environments.
+torch>=2.0.0
+torchvision>=0.15.0
+Pillow>=10.0.0
+numpy>=1.24.0
+scikit-learn>=1.5.0
+
+# --- Utilities ---
+requests==2.32.3
+python-dotenv==1.0.1
+
+# --- ONNX export (for on-device / offline inference) ---
+onnx>=1.16.0
+onnxruntime>=1.18.0
+
+# --- Training extras ---
+matplotlib>=3.8.0
+tqdm>=4.66.0

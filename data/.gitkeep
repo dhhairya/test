@@ -1,0 +1,9 @@
+# Data directory
+# Download PlantVillage dataset here:
+#   kaggle datasets download -d abdallahalidev/plantvillage-dataset
+#   unzip plantvillage-dataset.zip -d data/plantvillage
+#
+# Expected structure:
+#   data/plantvillage/Apple___Apple_scab/*.jpg
+#   data/plantvillage/Tomato___Late_blight/*.jpg
+#   ...

@@ -1,0 +1,4 @@
+# Models directory
+# Trained model weights (.pth, .onnx) go here.
+# These are excluded from git due to file size.
+# Run: python training/train.py to generate them.

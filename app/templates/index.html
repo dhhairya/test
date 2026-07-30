@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="CropGuard AI — AI-powered crop disease detection, yield prediction, and agricultural intelligence for farmers." />
+  <meta name="theme-color" content="#22c55e" />
+
+  <title>CropGuard AI — Crop Disease Detection</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="/static/css/style.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
+
+  <!-- App scripts (defer preserves order) -->
+  <script src="/static/js/offline.js" defer></script>
+  <script src="/static/js/upload.js"  defer></script>
+  <script src="/static/js/dashboard.js" defer></script>
+  <script src="/static/js/app.js"     defer></script>
+</head>
+
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────────── -->
+<header class="header" role="banner">
+  <div class="header-logo" aria-label="CropGuard AI home">
+    <div class="logo-icon" role="img" aria-label="Leaf icon">🌿</div>
+    <span class="logo-text">Crop<span>Guard</span> AI</span>
+  </div>
+
+  <!-- Offline indicator -->
+  <div class="offline-badge" id="offlineBadge" role="status" aria-live="polite">
+    <div class="offline-dot"></div>
+    Offline
+  </div>
+
+  <!-- Queue badge -->
+  <span id="queueBadge" style="font-size:11px;color:var(--clr-accent);display:none"
+        role="status" aria-live="polite"></span>
+
+  <!-- Navigation -->
+  <nav class="header-nav" role="navigation" aria-label="Main navigation">
+    <button class="nav-tab active" data-tab="upload" id="tab-upload"
+            aria-selected="true" role="tab">
+      <span>📷</span> <span>Scan</span>
+    </button>
+    <button class="nav-tab" data-tab="dashboard" id="tab-dashboard"
+            aria-selected="false" role="tab">
+      <span>📊</span> <span>Dashboard</span>
+    </button>
+  </nav>
+</header>
+
+<!-- ── Main ───────────────────────────────────────────────────────────────── -->
+<main class="main" id="main">
+
+  <!-- ════════════════════════════════════════════════════════════════════════ -->
+  <!-- UPLOAD PAGE                                                             -->
+  <!-- ════════════════════════════════════════════════════════════════════════ -->
+  <section class="page active" data-page="upload" aria-label="Crop scan page">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-badge">🌱 AI-Powered Agriculture</div>
+      <h1 class="hero-title">
+        Detect Crop Diseases<br>
+        <span>Instantly</span>
+      </h1>
+      <p class="hero-sub">
+        Upload a leaf photo and let AI identify diseases, predict progression,
+        forecast yield impact, and recommend preventive actions — even offline.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-pill">
+          <strong>38</strong>
+          <span>Disease Classes</span>
+        </div>
+        <div class="stat-pill">
+          <strong>14</strong>
+          <span>Crop Types</span>
+        </div>
+        <div class="stat-pill">
+          <strong>85%</strong>
+          <span>Min Confidence</span>
+        </div>
+        <div class="stat-pill">
+          <strong>100%</strong>
+          <span>Offline Ready</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upload card -->
+    <div class="upload-section">
+      <div class="container">
+
+        <div class="upload-card">
+          <h2>Analyze Your Crop</h2>
+          <p>Upload a photo of a leaf or stem. For best results, ensure good lighting and focus on a single leaf.</p>
+
+          <!-- Preview (hidden until file is selected) -->
+          <div class="upload-preview" id="uploadPreview" role="img" aria-label="Selected image preview">
+            <img id="previewImg" src="" alt="Selected leaf image" />
+            <button class="upload-preview-remove" id="previewRemove"
+                    aria-label="Remove selected image">✕</button>
+          </div>
+
+          <!-- Drop zone (hidden once file selected) -->
+          <div class="drop-zone" id="dropZone" role="button"
+               tabindex="0" aria-label="Drop zone — click or drag a leaf photo here"
+               onkeypress="if(event.key==='Enter')document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" name="image"
+                   accept="image/jpeg,image/png,image/webp"
+                   aria-label="Choose a crop photo" />
+            <div class="drop-zone-icon" aria-hidden="true">🍃</div>
+            <h3>Drop leaf photo here</h3>
+            <p>or click to browse · JPEG, PNG, WebP · max 16 MB</p>
+          </div>
+
+          <!-- Location / soil row -->
+          <div class="location-bar" style="margin-top: var(--space-4)">
+            <label for="soilSelect">🌍 Soil type:</label>
+            <select id="soilSelect" aria-label="Select soil type">
+              <option value="loamy">Loamy</option>
+              <option value="clay">Clay</option>
+              <option value="sandy">Sandy</option>
+              <option value="silty">Silty</option>
+              <option value="peaty">Peaty</option>
+            </select>
+            <button class="btn btn-secondary" id="getLocBtn"
+                    style="padding:6px 12px;font-size:12px"
+                    onclick="requestLocation().then(l => {
+                      if(l) document.getElementById('locStatus').textContent = '📍 ' + l.lat.toFixed(3)+', '+l.lng.toFixed(3);
+                    })"
+                    aria-label="Get current location">
+              📍 Location
+            </button>
+            <span id="locStatus" class="location-status" aria-live="polite">Not set</span>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="upload-controls">
+            <button class="btn btn-secondary" id="cameraBtn" aria-label="Take a photo">
+              📷 Camera
+            </button>
+            <button class="btn btn-secondary" id="clearBtn" aria-label="Clear selection">
+              🗑 Clear
+            </button>
+            <button class="btn btn-primary" id="analyzeBtn" disabled
+                    aria-label="Analyze the selected image">
+              🔍 <span>Analyze Leaf</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Result section -->
+        <div id="resultSection" style="margin-top: var(--space-6)" role="region"
+             aria-label="Analysis result" aria-live="polite"></div>
+
+      </div>
+    </div>
+  </section><!-- /upload page -->
+
+
+  <!-- ════════════════════════════════════════════════════════════════════════ -->
+  <!-- DASHBOARD PAGE                                                          -->
+  <!-- ════════════════════════════════════════════════════════════════════════ -->
+  <section class="page" data-page="dashboard" aria-label="Detection history dashboard">
+    <div class="container dashboard-page">
+
+      <div class="dashboard-header">
+        <h1>🌾 Detection Dashboard</h1>
+        <div style="display:flex;gap:var(--space-3);align-items:center;flex-wrap:wrap">
+          <select id="dashDays" aria-label="Time period"
+                  style="background:var(--clr-bg-elevated);border:1px solid var(--clr-border);color:var(--clr-text-primary);border-radius:var(--radius-sm);padding:8px 12px;font-size:13px;cursor:pointer">
+            <option value="7">Last 7 days</option>
+            <option value="30" selected>Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+          <button class="btn btn-secondary" id="refreshDash" aria-label="Refresh dashboard">
+            🔄 Refresh
+          </button>
+          <button class="btn btn-outline" id="getLocationBtn" aria-label="Get location for alerts">
+            📍 Get Alerts Near Me
+          </button>
+        </div>
+      </div>
+
+      <!-- Outbreak alerts -->
+      <div id="alertsContainer" role="alert" aria-live="polite"></div>
+
+      <!-- Location status -->
+      <div class="location-bar" style="margin-bottom:var(--space-5)">
+        <span style="font-size:13px;color:var(--clr-text-muted)">Location:</span>
+        <span id="locationStatus" class="location-status" style="margin-left:0">Not set — click "Get Alerts Near Me"</span>
+      </div>
+
+      <!-- Summary stats -->
+      <div class="stats-grid" role="region" aria-label="Summary statistics">
+        <div class="stat-card">
+          <span class="icon" aria-hidden="true">🔬</span>
+          <div class="stat-value" id="statTotal">—</div>
+          <div class="stat-label">Total Detections</div>
+        </div>
+        <div class="stat-card">
+          <span class="icon" aria-hidden="true">✅</span>
+          <div class="stat-value" id="statHealthy">—</div>
+          <div class="stat-label">Healthy</div>
+        </div>
+        <div class="stat-card">
+          <span class="icon" aria-hidden="true">⚠️</span>
+          <div class="stat-value" id="statDiseased">—</div>
+          <div class="stat-label">Diseased</div>
+        </div>
+        <div class="stat-card">
+          <span class="icon" aria-hidden="true">💚</span>
+          <div class="stat-value" id="statHealthRate">—</div>
+          <div class="stat-label">Health Rate</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h3><span>Detection Timeline</span> — daily breakdown</h3>
+          <div class="chart-canvas-wrap">
+            <canvas id="timelineChart" aria-label="Detection timeline chart" role="img"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3><span>Disease Breakdown</span></h3>
+          <div class="chart-canvas-wrap">
+            <canvas id="diseaseChart" aria-label="Disease distribution chart" role="img"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h3><span>Severity Distribution</span></h3>
+          <div class="chart-canvas-wrap">
+            <canvas id="severityChart" aria-label="Severity distribution chart" role="img"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detection history table -->
+      <div class="history-card" role="region" aria-label="Detection history">
+        <div class="history-card-header">
+          <h3>🗂 Recent Detections</h3>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="history-table" aria-label="Detection history table">
+            <thead>
+              <tr>
+                <th scope="col">Date & Time</th>
+                <th scope="col">Crop</th>
+                <th scope="col">Disease</th>
+                <th scope="col">Severity</th>
+                <th scope="col">Confidence</th>
+                <th scope="col">Location</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr>
+                <td colspan="6" style="text-align:center;color:var(--clr-text-muted);padding:var(--space-5)">
+                  Loading…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="historyEmpty" style="display:none" role="status">
+          <div class="empty-icon" aria-hidden="true">🌱</div>
+          <p>No detections yet. Upload a crop photo to get started!</p>
+          <button class="btn btn-primary" style="margin-top:var(--space-4)"
+                  onclick="switchTab('upload')">
+            📷 Scan Your First Crop
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section><!-- /dashboard page -->
+
+</main>
+
+<!-- ── Loading Spinner ─────────────────────────────────────────────────────── -->
+<div class="spinner-overlay" id="spinnerOverlay" role="status" aria-live="assertive"
+     aria-label="Loading">
+  <div class="spinner" aria-hidden="true"></div>
+  <p class="spinner-text">Analyzing crop…</p>
+</div>
+
+<!-- ── Toast Container ────────────────────────────────────────────────────── -->
+<div class="toast-container" id="toastContainer" role="region" aria-label="Notifications"
+     aria-live="polite"></div>
+
+</body>
+</html>
